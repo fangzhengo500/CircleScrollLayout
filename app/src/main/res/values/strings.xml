@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">RingScrollLayout</string>
     <string name="circle_radius">半径</string>
+    <string name="center_x">centerX</string>
+    <string name="center_y">centerY</string>
 </resources>

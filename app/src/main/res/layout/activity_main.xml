@@ -74,24 +74,83 @@
             android:text="8" />
     </com.loosu.ringscrolllayout.RingScrollLayout>
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center">
+        android:layout_margin="5dp"
+        android:padding="5dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            android:text="@string/circle_radius"
-            android:textSize="@dimen/text_size_normal" />
-
-        <SeekBar
-            android:max="1000"
-            android:id="@+id/seek_radius"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:gravity="center">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/circle_radius"
+                android:textSize="@dimen/text_size_normal" />
+
+            <SeekBar
+                android:id="@+id/seek_radius"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="1000" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:padding="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="@string/center_x"
+                    android:textSize="@dimen/text_size_normal" />
+
+                <SeekBar
+                    android:id="@+id/seek_center_x"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="1000" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="@string/center_y"
+                    android:textSize="@dimen/text_size_normal" />
+
+                <SeekBar
+                    android:id="@+id/seek_center_y"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="1000" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>

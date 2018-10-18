@@ -9,6 +9,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RingScrollLayout mLayoutRing;
     private SeekBar mSeekBarRadius;
+    private SeekBar mSeekBarCenterX;
+    private SeekBar mSeekBarCenterY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,9 +18,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mLayoutRing = (RingScrollLayout) findViewById(R.id.layout_ring);
         mSeekBarRadius = (SeekBar) findViewById(R.id.seek_radius);
-
+        mSeekBarCenterX = (SeekBar) findViewById(R.id.seek_center_x);
+        mSeekBarCenterY = (SeekBar) findViewById(R.id.seek_center_y);
 
         mSeekBarRadius.setOnSeekBarChangeListener(mSeekBarChangeListener);
+        mSeekBarCenterX.setOnSeekBarChangeListener(mSeekBarChangeListener);
+        mSeekBarCenterY.setOnSeekBarChangeListener(mSeekBarChangeListener);
     }
 
     private SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
@@ -27,6 +32,14 @@ public class MainActivity extends AppCompatActivity {
             switch (seekBar.getId()) {
                 case R.id.seek_radius:
                     mLayoutRing.setRadius(progress);
+                    break;
+
+                case R.id.seek_center_x:
+                    mLayoutRing.setCenterX(progress);
+                    break;
+
+                case R.id.seek_center_y:
+                    mLayoutRing.setCenterY(progress);
                     break;
             }
         }

@@ -1,19 +1,29 @@
 package com.loosu.ringscrolllayout;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
+import androidx.core.view.GestureDetectorCompat;
+
 public class RingScrollLayout extends ViewGroup {
     private static final String TAG = "RingScrollLayout";
+
+    private GestureDetectorCompat mGestureDetector = null;
 
     private int mTouchSlop;
     private int mMinVelocity;
     private int mMaxVelocity;
 
+    private Point mCenterPoint = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
     private int mRadius = 100;
+    private LayoutOrder mLayoutOrder = LayoutOrder.ANTICLOCKWISE;   // default layout anticlockwise.
 
     public RingScrollLayout(Context context) {
         super(context);
@@ -32,6 +42,8 @@ public class RingScrollLayout extends ViewGroup {
     }
 
     private void init(Context context, AttributeSet attrs) {
+        mGestureDetector = new GestureDetectorCompat(context, mOnGestureListener);
+
         ViewConfiguration config = ViewConfiguration.get(context);
         mTouchSlop = config.getScaledPagingTouchSlop();
         mMinVelocity = config.getScaledMinimumFlingVelocity();
@@ -113,20 +125,36 @@ public class RingScrollLayout extends ViewGroup {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        if (mCenterPoint.x == Integer.MIN_VALUE && mCenterPoint.y == Integer.MIN_VALUE) {
+            int paddingLeft = getPaddingLeft();
+            int paddingTop = getPaddingTop();
+            int paddingRight = getPaddingRight();
+            int paddingBottom = getPaddingBottom();
+            mCenterPoint.x = (w - paddingLeft - paddingRight) / 2 + paddingLeft;
+            mCenterPoint.y = (h - paddingTop - paddingBottom) / 2 + paddingTop;
+        }
+    }
+
+    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
         int paddingRight = getPaddingRight();
         int paddingBottom = getPaddingBottom();
 
-        int centerX = (getMeasuredWidth() - paddingLeft - paddingRight) / 2 + paddingLeft;
-        int centerY = (getMeasuredHeight() - paddingTop - paddingBottom) / 2 + paddingTop;
+        //int centerX = (getMeasuredWidth() - paddingLeft - paddingRight) / 2 + paddingLeft;
+        //int centerY = (getMeasuredHeight() - paddingTop - paddingBottom) / 2 + paddingTop;
+        int centerX = mCenterPoint.x;
+        int centerY = mCenterPoint.y;
 
         int childCount = getChildCount();
         if (childCount > 1) {
             for (int i = 0; i < childCount; i++) {
 
-                double angle = 360 / childCount * i + 90;
+                double angle = -360 / childCount * i + 90;
                 int cX = (int) (centerX - mRadius * Math.cos(Math.toRadians(angle)));
                 int cY = (int) (centerY - mRadius * Math.sin(Math.toRadians(angle)));
 
@@ -158,12 +186,100 @@ public class RingScrollLayout extends ViewGroup {
         }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //return super.onTouchEvent(event);
+        return mGestureDetector.onTouchEvent(event);
+    }
+
     public int getRadius() {
         return mRadius;
     }
 
     public void setRadius(int radius) {
         mRadius = radius;
-       requestLayout();
+        requestLayout();
     }
+
+    public int getCenterX() {
+        return mRadius;
+    }
+
+    public void setCenterX(int centerX) {
+        mCenterPoint.x = centerX;
+        requestLayout();
+    }
+
+    public int getCenterY() {
+        return mRadius;
+    }
+
+    public void setCenterY(int centerY) {
+        mCenterPoint.y = centerY;
+        requestLayout();
+    }
+
+    private GestureDetector.OnGestureListener mOnGestureListener = new GestureDetector.OnGestureListener() {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        /**
+         * @param e1        the event MotionEvent.ACTION_DOWN.
+         * @param e2        current touch event.
+         * @param distanceX distanceX
+         * @param distanceY distanceY
+         * @return
+         */
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            float aX = e1.getX();
+            float aY = e1.getY();
+
+            float moveX = e2.getX();
+            float moveY = e2.getY();
+
+            //float
+
+            // calculate the angle we move
+//            float angle = Math.toDegrees(Math.acos((mStart.first * end.first + mStart.second * end.second) / (Math.sqrt(mStart.first * mStart.first +
+//                    mStart.second * mStart.second) * Math.sqrt(end.first * end.first + end.second * end.second))))
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.e(TAG, "onFling: ");
+            return true;
+        }
+    };
+
+    public static double calculateAngle(double x, double y, double centerY, double centerX) {
+        return  Math.atan((y-centerY)/(x-centerX));
+    }
+
+    /**
+     * Layout order
+     */
+    public enum LayoutOrder {
+        CLOCKWISE,      // clockwise 顺时针
+        ANTICLOCKWISE  // anticlockwise 逆时针
+    }
+
+
 }
