@@ -22,7 +22,12 @@ public class RingScrollLayout extends ViewGroup {
     private int mMaxVelocity;
 
     private Point mCenterPoint = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+
+    private double mDegree = 0;
+    private double mDisplayDegrees = mDegree;
+
     private int mRadius = 100;
+
     private LayoutOrder mLayoutOrder = LayoutOrder.ANTICLOCKWISE;   // default layout anticlockwise.
 
     public RingScrollLayout(Context context) {
@@ -145,8 +150,6 @@ public class RingScrollLayout extends ViewGroup {
         int paddingRight = getPaddingRight();
         int paddingBottom = getPaddingBottom();
 
-        //int centerX = (getMeasuredWidth() - paddingLeft - paddingRight) / 2 + paddingLeft;
-        //int centerY = (getMeasuredHeight() - paddingTop - paddingBottom) / 2 + paddingTop;
         int centerX = mCenterPoint.x;
         int centerY = mCenterPoint.y;
 
@@ -154,9 +157,9 @@ public class RingScrollLayout extends ViewGroup {
         if (childCount > 1) {
             for (int i = 0; i < childCount; i++) {
 
-                double angle = -360 / childCount * i + 90;
-                int cX = (int) (centerX - mRadius * Math.cos(Math.toRadians(angle)));
-                int cY = (int) (centerY - mRadius * Math.sin(Math.toRadians(angle)));
+                double angle = -360 / childCount * i;
+                int cX = (int) (centerX - mRadius * Math.cos(Math.toRadians(mDisplayDegrees + angle)));
+                int cY = (int) (centerY - mRadius * Math.sin(Math.toRadians(mDisplayDegrees + angle)));
 
                 View childAt = getChildAt(i);
 
@@ -188,7 +191,12 @@ public class RingScrollLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        //return super.onTouchEvent(event);
+
+        // When the event.getAction() == MotionEvent.ACTION_UP,
+        // we need to update the mDegree flay, to smooth scroll.
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            mDegree = mDisplayDegrees;
+        }
         return mGestureDetector.onTouchEvent(event);
     }
 
@@ -219,6 +227,15 @@ public class RingScrollLayout extends ViewGroup {
         requestLayout();
     }
 
+    public double getDegree() {
+        return mDegree;
+    }
+
+    public void setDegree(double degree) {
+        mDegree = degree;
+        requestLayout();
+    }
+
     private GestureDetector.OnGestureListener mOnGestureListener = new GestureDetector.OnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
@@ -240,23 +257,34 @@ public class RingScrollLayout extends ViewGroup {
          * @param e2        current touch event.
          * @param distanceX distanceX
          * @param distanceY distanceY
-         * @return
+         * @return always true, we need handler scroll.
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            float aX = e1.getX();
-            float aY = e1.getY();
+
+            float preX = e1.getX();
+            float preY = e1.getY();
 
             float moveX = e2.getX();
             float moveY = e2.getY();
 
-            //float
+            final Point center = mCenterPoint;
 
-            // calculate the angle we move
-//            float angle = Math.toDegrees(Math.acos((mStart.first * end.first + mStart.second * end.second) / (Math.sqrt(mStart.first * mStart.first +
-//                    mStart.second * mStart.second) * Math.sqrt(end.first * end.first + end.second * end.second))))
+            double preDegree = calculateAngle(preX, preY, center.x, center.y);
+            double moveDegree = calculateAngle(moveX, moveY, center.x, center.y);
+
+            double dDegree = moveDegree - preDegree;
+
+            mDisplayDegrees = mDegree - dDegree;
+
+            Log.w(TAG, "preDegree: " + preDegree);
+            Log.w(TAG, "moveDegree: " + moveDegree);
+            Log.e(TAG, "dDegree: " + dDegree);
+
+            requestLayout();
             return true;
         }
+
 
         @Override
         public void onLongPress(MotionEvent e) {
@@ -269,8 +297,17 @@ public class RingScrollLayout extends ViewGroup {
         }
     };
 
-    public static double calculateAngle(double x, double y, double centerY, double centerX) {
-        return  Math.atan((y-centerY)/(x-centerX));
+    /**
+     * calculate angle, that (x,y) relative to center point(centerX, centerY).
+     *
+     * @param x       x
+     * @param y       x
+     * @param centerX centerX
+     * @param centerY centerY
+     * @return angle, top of center is 0; right of center is 90; bottom of center is 10; left of center is -90.
+     */
+    public double calculateAngle(double x, double y, double centerX, double centerY) {
+        return Math.toDegrees(Math.atan2(x - centerX, y - centerY));
     }
 
     /**
@@ -278,8 +315,6 @@ public class RingScrollLayout extends ViewGroup {
      */
     public enum LayoutOrder {
         CLOCKWISE,      // clockwise 顺时针
-        ANTICLOCKWISE  // anticlockwise 逆时针
+        ANTICLOCKWISE   // anticlockwise 逆时针
     }
-
-
 }
